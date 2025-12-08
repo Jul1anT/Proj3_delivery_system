@@ -1,49 +1,49 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Optimizador de Rutas de Entrega</title>
+    <title>Delivery Route Optimizer System</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📦 Optimizador de Rutas de Entrega</h1>
-            <p class="subtitle">Sistema inteligente de optimización de rutas basado en grafos</p>
+            <h1>📦 Delivery Route Optimizer</h1>
+            <p class="subtitle">Intelligent route optimization system based on graph theory</p>
         </header>
 
         <div class="main-content">
             <div class="controls-panel">
                 <div class="section">
-                    <h2>Agregar Punto de Entrega</h2>
+                    <h2>Add Delivery Point</h2>
                     <div class="form-group">
                         <div class="autocomplete-container">
-                            <input type="text" id="addressInput" placeholder="Buscar dirección o ingresar coordenadas">
+                            <input type="text" id="addressInput" placeholder="Search address or enter coordinates">
                             <div id="autocompleteResults" class="autocomplete-results"></div>
                         </div>
-                        <button id="addPointBtn" class="btn btn-primary">Agregar Punto</button>
+                        <button id="addPointBtn" class="btn btn-primary">Add Point</button>
                     </div>
-                    <p class="help-text">🔍 Busca por calle, ciudad, código postal o coordenadas (lat, lng)</p>
+                    <p class="help-text">🔍 Search by street, city, postal code or coordinates (lat, lng)</p>
                 </div>
 
                 <div class="section">
-                    <h2>Puntos de Entrega</h2>
+                    <h2>Delivery Points</h2>
                     <div id="pointsList" class="points-list"></div>
                 </div>
 
                 <div class="section">
                     <button id="optimizeBtn" class="btn btn-success btn-large">
-                        🚀 Optimizar Ruta
+                        🚀 Optimize Route
                     </button>
                     <button id="clearBtn" class="btn btn-secondary">
-                        🗑️ Limpiar Todo
+                        🗑️ Clear All
                     </button>
                 </div>
 
                 <div id="routeInfo" class="section route-info" style="display: none;">
-                    <h2>Información de la Ruta</h2>
+                    <h2>Route Information</h2>
                     <div id="routeDetails"></div>
                 </div>
             </div>
@@ -54,8 +54,8 @@
         </div>
 
         <footer>
-            <p>Sistema desarrollado con algoritmos de optimización basados en teoría de grafos</p>
-            <a href="documentation.html" class="doc-link">📖 Ver Documentación Académica</a>
+            <p>System developed with optimization algorithms based on graph theory</p>
+            <a href="documentation.html" class="doc-link">📖 View Academic Documentation</a>
         </footer>
     </div>
 

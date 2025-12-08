@@ -32,7 +32,7 @@ class DeliveryOptimizer {
 
     initMap() {
         // Initialize map centered on a default location
-        this.map = L.map('map').setView([19.4326, -99.1332], 13); // Mexico City default
+        this.map = L.map('map').setView([4.7110, -74.0721], 13); // Bogotá, Colombia default
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -149,7 +149,7 @@ class DeliveryOptimizer {
         const container = document.getElementById('autocompleteResults');
         
         if (!results || results.length === 0) {
-            container.innerHTML = '<div class="autocomplete-no-results">No se encontraron resultados</div>';
+            container.innerHTML = '<div class="autocomplete-no-results">No results found</div>';
             container.classList.add('active');
             return;
         }
@@ -207,7 +207,7 @@ class DeliveryOptimizer {
 
     showAutocompleteLoading() {
         const container = document.getElementById('autocompleteResults');
-        container.innerHTML = '<div class="autocomplete-loading">Buscando direcciones...</div>';
+        container.innerHTML = '<div class="autocomplete-loading">Searching addresses...</div>';
         container.classList.add('active');
     }
 
@@ -295,7 +295,7 @@ class DeliveryOptimizer {
                 this.addPoint(lat, lng);
                 this.clearAddressInput();
             } else {
-                alert('Coordenadas inválidas. Latitud debe estar entre -90 y 90, Longitud entre -180 y 180.');
+                alert('Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180.');
             }
         } else {
             // Use first autocomplete result if available, otherwise geocode
@@ -337,14 +337,14 @@ class DeliveryOptimizer {
                     this.clearAddressInput();
                     this.map.setView([lat, lng], 13);
                 } else {
-                    alert('Coordenadas inválidas recibidas del servicio de geocodificación.');
+                    alert('Invalid coordinates received from geocoding service.');
                 }
             } else {
-                alert('No se pudo encontrar la dirección. Intenta con coordenadas (lat, lng).');
+                alert('Address not found. Try with coordinates (lat, lng).');
             }
         } catch (error) {
             console.error('Error al geocodificar:', error);
-            alert('Error al buscar la dirección. Intenta con coordenadas (lat, lng).');
+            alert('Error searching for address. Try with coordinates (lat, lng).');
         }
     }
 
@@ -374,11 +374,11 @@ class DeliveryOptimizer {
 
         marker.bindPopup(`
             <div style="text-align: center;">
-                <strong>Punto ${this.points.length}</strong><br>
+                <strong>Point ${this.points.length}</strong><br>
                 ${this.escapeHtml(point.address)}<br>
                 <button onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})" 
                         style="margin-top: 10px; padding: 8px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                    📍 Abrir en Google Maps
+                    📍 Open in Google Maps
                 </button>
             </div>
         `);
@@ -413,7 +413,7 @@ class DeliveryOptimizer {
         list.innerHTML = '';
 
         if (this.points.length === 0) {
-            list.innerHTML = '<p style="color: #718096; text-align: center;">No hay puntos agregados</p>';
+            list.innerHTML = '<p style="color: #718096; text-align: center;">No points added</p>';
             return;
         }
 
@@ -476,11 +476,11 @@ class DeliveryOptimizer {
 
             marker.bindPopup(`
                 <div style="text-align: center;">
-                    <strong>Punto ${index + 1}</strong><br>
+                    <strong>Point ${index + 1}</strong><br>
                     ${this.escapeHtml(point.address)}<br>
                     <button onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})" 
                             style="margin-top: 10px; padding: 8px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        📍 Abrir en Google Maps
+                        📍 Open in Google Maps
                     </button>
                 </div>
             `);
@@ -490,7 +490,7 @@ class DeliveryOptimizer {
     }
 
     clearAll() {
-        if (!confirm('¿Estás seguro de que deseas eliminar todos los puntos?')) {
+        if (!confirm('Are you sure you want to delete all points?')) {
             return;
         }
 
@@ -517,7 +517,7 @@ class DeliveryOptimizer {
     // Graph-based Route Optimization using Nearest Neighbor Algorithm
     optimizeRoute() {
         if (this.points.length < 2) {
-            alert('Necesitas al menos 2 puntos para optimizar la ruta.');
+            alert('You need at least 2 points to optimize the route.');
             return;
         }
 
@@ -659,11 +659,11 @@ class DeliveryOptimizer {
 
             marker.bindPopup(`
                 <div style="text-align: center;">
-                    <strong>Parada ${routeOrder + 1}</strong><br>
+                    <strong>Stop ${routeOrder + 1}</strong><br>
                     ${this.escapeHtml(point.address)}<br>
                     <button onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})" 
                             style="margin-top: 10px; padding: 8px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        📍 Abrir en Google Maps
+                        📍 Open in Google Maps
                     </button>
                 </div>
             `);
@@ -712,14 +712,14 @@ class DeliveryOptimizer {
 
             html += `
                 <div class="route-step">
-                    <span class="route-step-number">Parada ${i + 1}:</span>
+                    <span class="route-step-number">Stop ${i + 1}:</span>
                     ${this.escapeHtml(point.address)}
                     ${i < route.length - 1 ? `<div class="route-distance">↓ ${distance.toFixed(2)} km</div>` : ''}
                 </div>
             `;
         });
 
-        html += `<div class="total-distance">Distancia Total: ${totalDistance.toFixed(2)} km</div>`;
+        html += `<div class="total-distance">Total Distance: ${totalDistance.toFixed(2)} km</div>`;
         
         routeDetails.innerHTML = html;
         routeInfo.style.display = 'block';

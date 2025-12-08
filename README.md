@@ -1,112 +1,131 @@
-# Sistema Optimizador de Rutas de Entrega 📦
+# Delivery Route Optimizer System 📦
 
-Sistema web interactivo para la optimización de rutas de entrega basado en teoría de grafos y algoritmos heurísticos.
+Interactive web system for delivery route optimization based on graph theory and heuristic algorithms.
 
-## 🚀 Características
+## 🚀 Features
 
-- **Búsqueda de Direcciones con Autocompletado**: Encuentra direcciones fácilmente escribiendo nombres de calles, ciudades o códigos postales, similar a Google Maps
-- **Mapa Interactivo**: Visualiza todos los puntos de entrega en un mapa usando Leaflet.js
-- **Optimización Inteligente**: Calcula la ruta más eficiente usando el algoritmo del vecino más cercano (Nearest Neighbor)
-- **Orden de Paradas**: Muestra la secuencia óptima de entregas con distancias entre paradas
-- **Integración GPS**: Botón para abrir cada destino en Google Maps con navegación activada
-- **Interfaz Moderna**: Diseño minimalista y fácil de usar
-- **Documentación Académica**: Explicación completa del modelo matemático y algoritmos
+- **Smart Address Search with Autocomplete**: Easily find addresses by typing street names, cities or postal codes, similar to Google Maps
+- **Interactive Map**: Visualize all delivery points on a map using Leaflet.js
+- **Intelligent Optimization**: Calculates the most efficient route using the Nearest Neighbor algorithm
+- **Stop Order**: Shows the optimal delivery sequence with distances between stops
+- **GPS Integration**: Button to open each destination in Google Maps with navigation enabled
+- **Modern Interface**: Minimalist and easy-to-use design
+- **Academic Documentation**: Complete explanation of the mathematical model and algorithms
 
-## 📋 Requisitos
+## 📋 Requirements
 
-- Navegador web moderno (Chrome, Firefox, Safari, Edge)
-- Conexión a Internet (para cargar mapas y servicios de geocodificación)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Internet connection (to load maps and geocoding services)
 
-## 🎯 Cómo Usar
+## 🎯 How to Use
 
-1. Abre el archivo `index.html` en tu navegador web
-2. Agrega puntos de entrega de tres formas:
-   - **Búsqueda con autocompletado**: Escribe una dirección y selecciona de las sugerencias (¡como Google Maps!)
-   - Haciendo clic directamente en el mapa
-   - Ingresando coordenadas (formato: lat, lng)
-3. Haz clic en "Optimizar Ruta" para calcular la mejor ruta
-4. Visualiza la ruta óptima con el orden sugerido de paradas
-5. Usa el botón "📍 GPS" para abrir cada destino en Google Maps
+1. Open the `index.html` file in your web browser
+2. Add delivery points in three ways:
+   - **Autocomplete search**: Type an address and select from suggestions (like Google Maps!)
+   - Click directly on the map
+   - Enter coordinates (format: lat, lng)
+3. Click "Optimize Route" to calculate the best route
+4. View the optimal route with suggested stop order
+5. Use the "📍 GPS" button to open each destination in Google Maps
 
-## 🧮 Tecnología y Algoritmos
+### Example for Bogotá, Colombia
 
-### Teoría de Grafos
-El sistema modela el problema de rutas como un grafo completo ponderado:
-- **Nodos**: Puntos de entrega con coordenadas geográficas
-- **Aristas**: Conexiones entre puntos con distancia como peso
-- **Objetivo**: Encontrar el camino más corto que visita todos los nodos
+Try these delivery points in Bogotá:
+- Plaza de Bolívar: `4.5981, -74.0758`
+- Museo del Oro: `4.6017, -74.0720`
+- Zona Rosa: `4.6653, -74.0529`
+- Parque 93: `4.6756, -74.0487`
 
-### Algoritmo del Vecino Más Cercano
-Heurística greedy con complejidad O(n²) que:
-1. Inicia en un punto arbitrario
-2. Selecciona el punto no visitado más cercano
-3. Repite hasta visitar todos los puntos
-4. Proporciona soluciones aproximadas en tiempo real
+Or simply search: "Plaza de Bolivar, Bogota"
 
-### Fórmula de Haversine
-Calcula distancias reales considerando la curvatura de la Tierra:
+## 🧮 Technology and Algorithms
+
+### Graph Theory
+The system models the route problem as a complete weighted graph:
+- **Nodes**: Delivery points with geographic coordinates
+- **Edges**: Connections between points with distance as weight
+- **Objective**: Find the shortest path that visits all nodes
+
+### Nearest Neighbor Algorithm
+Greedy heuristic with O(n²) complexity that:
+1. Starts at an arbitrary point
+2. Selects the nearest unvisited point
+3. Repeats until all points are visited
+4. Provides approximate solutions in real-time
+
+### Haversine Formula
+Calculates real distances considering Earth's curvature:
 ```
 a = sin²(Δφ/2) + cos(φ₁) × cos(φ₂) × sin²(Δλ/2)
 c = 2 × atan2(√a, √(1-a))
 d = R × c
 ```
 
-## 📂 Estructura del Proyecto
+## 📂 Project Structure
 
 ```
 delivery_system/
-├── index.html           # Página principal de la aplicación
-├── app.js              # Lógica de optimización y manejo del mapa
-├── styles.css          # Estilos modernos y responsivos
-├── documentation.html  # Documentación académica completa
-└── README.md          # Este archivo
+├── index.html           # Main application page
+├── app.js              # Optimization logic and map handling
+├── styles.css          # Modern and responsive styles
+├── documentation.html  # Complete academic documentation
+├── USAGE.md            # Detailed usage guide
+├── EXAMPLES.md         # Usage examples (includes Bogotá routes)
+└── README.md           # This file
 ```
 
-## 🎨 Tecnologías Utilizadas
+## 🎨 Technologies Used
 
-- **HTML5**: Estructura semántica
-- **CSS3**: Diseño moderno con gradientes y animaciones
-- **JavaScript ES6+**: Lógica de la aplicación
-- **Leaflet.js**: Mapas interactivos
-- **OpenStreetMap**: Datos cartográficos
-- **Nominatim**: Servicio de geocodificación
-- **Google Maps API**: Navegación GPS
+- **HTML5**: Semantic structure
+- **CSS3**: Modern design with gradients and animations
+- **JavaScript ES6+**: Application logic
+- **Leaflet.js**: Interactive maps
+- **OpenStreetMap**: Cartographic data
+- **Nominatim**: Geocoding service
+- **Google Maps API**: GPS navigation
 
-## 📖 Documentación Académica
+## 📖 Academic Documentation
 
-Consulta el archivo `documentation.html` para una explicación detallada que incluye:
-- Fundamentos de teoría de grafos
-- Problema del Viajante (TSP)
-- Análisis de complejidad computacional
-- Arquitectura del sistema
-- Referencias bibliográficas
+See the `documentation.html` file for a detailed explanation including:
+- Graph theory fundamentals
+- Traveling Salesman Problem (TSP)
+- Computational complexity analysis
+- System architecture
+- Bibliographic references
 
-## 🌟 Características de la Interfaz
+## 🌟 Interface Features
 
-- Diseño minimalista y profesional
-- Paleta de colores moderna (gradiente púrpura)
-- Responsive design para móviles y tablets
-- Feedback visual en todas las interacciones
-- Información detallada de distancias
-- Marcadores numerados con orden de ruta
+- Minimalist and professional design
+- Modern color palette (purple gradient)
+- Responsive design for mobile and tablets
+- Visual feedback in all interactions
+- Detailed distance information
+- Numbered markers with route order
 
-## 🔄 Casos de Uso
+## 🔄 Use Cases
 
-- Empresas de mensajería y paquetería
-- Servicios de entrega de alimentos
-- Distribución de mercancías
-- Rutas de transporte escolar
-- Servicios de mantenimiento
-- Planificación de itinerarios turísticos
+- Courier and package delivery companies
+- Food delivery services
+- Merchandise distribution
+- School bus routes
+- Maintenance services
+- Tourism itinerary planning
 
-## 📝 Licencia
+## 🌎 Bogotá, Colombia Examples
 
-Este proyecto está desarrollado con fines educativos y demostrativos.
+The system is pre-configured with Bogotá as the default location. Check `EXAMPLES.md` for specific routes in:
+- Downtown Bogotá (Plaza de Bolívar, Museo del Oro)
+- North Bogotá (Zona Rosa, Parque 93, Unicentro)
+- Commercial districts (Shopping centers and main avenues)
 
-## 👨‍💻 Desarrollo
+## 📝 License
 
-El sistema está implementado completamente en el lado del cliente (frontend), sin necesidad de servidor backend. Todos los cálculos se realizan en el navegador del usuario.
+This project is developed for educational and demonstration purposes.
+
+## 👨‍💻 Development
+
+The system is fully implemented on the client side (frontend), with no need for a backend server. All calculations are performed in the user's browser.
 
 ---
 
-Desarrollado como sistema de optimización basado en algoritmos de grafos 🚀
+Developed as an optimization system based on graph algorithms 🚀
