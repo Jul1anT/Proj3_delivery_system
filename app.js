@@ -9,6 +9,9 @@ class DeliveryOptimizer {
         this.routePolyline = null;
         this.optimizedRoute = null;
         this.pointIdCounter = 0;
+        this.autocompleteResults = [];
+        this.selectedAutocompleteIndex = -1;
+        this.autocompleteTimeout = null;
         this.init();
     }
 
@@ -41,13 +44,28 @@ class DeliveryOptimizer {
     }
 
     setupEventListeners() {
+        const addressInput = document.getElementById('addressInput');
+        
         document.getElementById('addPointBtn').addEventListener('click', () => {
             this.addPointFromInput();
         });
 
-        document.getElementById('addressInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.addPointFromInput();
+        addressInput.addEventListener('input', (e) => {
+            this.handleAddressInput(e.target.value);
+        });
+
+        addressInput.addEventListener('keydown', (e) => {
+            this.handleKeyNavigation(e);
+        });
+
+        addressInput.addEventListener('blur', () => {
+            // Delay hiding to allow click on autocomplete item
+            setTimeout(() => this.hideAutocomplete(), 200);
+        });
+
+        addressInput.addEventListener('focus', (e) => {
+            if (e.target.value.trim().length >= 3) {
+                this.handleAddressInput(e.target.value);
             }
         });
 
@@ -64,9 +82,190 @@ class DeliveryOptimizer {
         document.getElementById('addressInput').value = '';
     }
 
+    handleAddressInput(value) {
+        // Clear previous timeout
+        if (this.autocompleteTimeout) {
+            clearTimeout(this.autocompleteTimeout);
+        }
+
+        const trimmedValue = value.trim();
+
+        // Hide autocomplete if input is too short
+        if (trimmedValue.length < 3) {
+            this.hideAutocomplete();
+            return;
+        }
+
+        // Check if it's coordinates
+        const coordMatch = trimmedValue.match(/(-?\d+\.?\d*),?\s*(-?\d+\.?\d*)/);
+        if (coordMatch) {
+            this.hideAutocomplete();
+            return;
+        }
+
+        // Show loading state
+        this.showAutocompleteLoading();
+
+        // Debounce the API call
+        this.autocompleteTimeout = setTimeout(() => {
+            this.fetchAddressSuggestions(trimmedValue);
+        }, 300);
+    }
+
+    async fetchAddressSuggestions(query) {
+        try {
+            // Use Nominatim's search API with more detailed results
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+            );
+            const data = await response.json();
+            
+            this.autocompleteResults = data;
+            this.displayAutocompleteSuggestions(data);
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+            this.hideAutocomplete();
+        }
+    }
+
+    displayAutocompleteSuggestions(results) {
+        const container = document.getElementById('autocompleteResults');
+        
+        if (!results || results.length === 0) {
+            container.innerHTML = '<div class="autocomplete-no-results">No se encontraron resultados</div>';
+            container.classList.add('active');
+            return;
+        }
+
+        container.innerHTML = '';
+        results.forEach((result, index) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            item.dataset.index = index;
+            
+            // Extract main address and details
+            const mainAddress = this.getMainAddress(result);
+            const details = this.getAddressDetails(result);
+            
+            item.innerHTML = `
+                <div class="autocomplete-item-main">${this.escapeHtml(mainAddress)}</div>
+                <div class="autocomplete-item-detail">${this.escapeHtml(details)}</div>
+            `;
+            
+            item.addEventListener('click', () => {
+                this.selectAutocompleteSuggestion(index);
+            });
+            
+            container.appendChild(item);
+        });
+        
+        container.classList.add('active');
+        this.selectedAutocompleteIndex = -1;
+    }
+
+    getMainAddress(result) {
+        // Try to get the most specific address component
+        if (result.address) {
+            const addr = result.address;
+            return addr.road || addr.suburb || addr.city || addr.town || addr.village || result.display_name.split(',')[0];
+        }
+        return result.display_name.split(',')[0];
+    }
+
+    getAddressDetails(result) {
+        if (result.address) {
+            const addr = result.address;
+            const parts = [];
+            
+            if (addr.house_number) parts.push(addr.house_number);
+            if (addr.suburb && addr.suburb !== this.getMainAddress(result)) parts.push(addr.suburb);
+            if (addr.city) parts.push(addr.city);
+            if (addr.state) parts.push(addr.state);
+            if (addr.country) parts.push(addr.country);
+            
+            return parts.join(', ') || result.display_name;
+        }
+        return result.display_name;
+    }
+
+    showAutocompleteLoading() {
+        const container = document.getElementById('autocompleteResults');
+        container.innerHTML = '<div class="autocomplete-loading">Buscando direcciones...</div>';
+        container.classList.add('active');
+    }
+
+    hideAutocomplete() {
+        const container = document.getElementById('autocompleteResults');
+        container.classList.remove('active');
+        container.innerHTML = '';
+        this.selectedAutocompleteIndex = -1;
+    }
+
+    handleKeyNavigation(e) {
+        const container = document.getElementById('autocompleteResults');
+        if (!container.classList.contains('active') || this.autocompleteResults.length === 0) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.addPointFromInput();
+            }
+            return;
+        }
+
+        const items = container.querySelectorAll('.autocomplete-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            this.selectedAutocompleteIndex = Math.min(this.selectedAutocompleteIndex + 1, items.length - 1);
+            this.updateAutocompleteSelection(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.selectedAutocompleteIndex = Math.max(this.selectedAutocompleteIndex - 1, -1);
+            this.updateAutocompleteSelection(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (this.selectedAutocompleteIndex >= 0) {
+                this.selectAutocompleteSuggestion(this.selectedAutocompleteIndex);
+            } else {
+                this.addPointFromInput();
+            }
+        } else if (e.key === 'Escape') {
+            this.hideAutocomplete();
+        }
+    }
+
+    updateAutocompleteSelection(items) {
+        items.forEach((item, index) => {
+            if (index === this.selectedAutocompleteIndex) {
+                item.classList.add('selected');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+
+    selectAutocompleteSuggestion(index) {
+        const result = this.autocompleteResults[index];
+        if (result) {
+            const lat = parseFloat(result.lat);
+            const lng = parseFloat(result.lon);
+            
+            // Validate coordinate ranges
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                this.addPoint(lat, lng, result.display_name);
+                this.clearAddressInput();
+                this.hideAutocomplete();
+                this.map.setView([lat, lng], 15);
+            }
+        }
+    }
+
     addPointFromInput() {
         const input = document.getElementById('addressInput').value.trim();
         if (!input) return;
+
+        // Hide autocomplete
+        this.hideAutocomplete();
 
         // Try to parse as coordinates (lat, lng)
         const coordMatch = input.match(/(-?\d+\.?\d+),\s*(-?\d+\.?\d+)/);
@@ -82,8 +281,12 @@ class DeliveryOptimizer {
                 alert('Coordenadas inválidas. Latitud debe estar entre -90 y 90, Longitud entre -180 y 180.');
             }
         } else {
-            // Use Nominatim geocoding service for address lookup
-            this.geocodeAddress(input);
+            // Use first autocomplete result if available, otherwise geocode
+            if (this.autocompleteResults.length > 0) {
+                this.selectAutocompleteSuggestion(0);
+            } else {
+                this.geocodeAddress(input);
+            }
         }
     }
 

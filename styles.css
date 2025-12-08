@@ -74,8 +74,13 @@ header h1 {
     margin-bottom: 10px;
 }
 
-input[type="text"] {
+.autocomplete-container {
     flex: 1;
+    position: relative;
+}
+
+input[type="text"] {
+    width: 100%;
     padding: 12px 15px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
@@ -86,6 +91,70 @@ input[type="text"] {
 input[type="text"]:focus {
     outline: none;
     border-color: #667eea;
+}
+
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #667eea;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.autocomplete-results.active {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: #f7f9ff;
+}
+
+.autocomplete-item.selected {
+    background-color: #eef2ff;
+}
+
+.autocomplete-item-main {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.autocomplete-item-detail {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.autocomplete-loading {
+    padding: 12px 15px;
+    text-align: center;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.autocomplete-no-results {
+    padding: 12px 15px;
+    text-align: center;
+    color: #718096;
+    font-size: 0.9rem;
 }
 
 .btn {

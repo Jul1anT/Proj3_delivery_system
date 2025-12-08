@@ -19,10 +19,13 @@
                 <div class="section">
                     <h2>Agregar Punto de Entrega</h2>
                     <div class="form-group">
-                        <input type="text" id="addressInput" placeholder="Dirección o coordenadas (lat, lng)">
+                        <div class="autocomplete-container">
+                            <input type="text" id="addressInput" placeholder="Buscar dirección o ingresar coordenadas">
+                            <div id="autocompleteResults" class="autocomplete-results"></div>
+                        </div>
                         <button id="addPointBtn" class="btn btn-primary">Agregar Punto</button>
                     </div>
-                    <p class="help-text">Haz clic en el mapa o ingresa una dirección</p>
+                    <p class="help-text">🔍 Busca por calle, ciudad, código postal o coordenadas (lat, lng)</p>
                 </div>
 
                 <div class="section">

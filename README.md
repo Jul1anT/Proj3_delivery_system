@@ -4,6 +4,7 @@ Sistema web interactivo para la optimización de rutas de entrega basado en teor
 
 ## 🚀 Características
 
+- **Búsqueda de Direcciones con Autocompletado**: Encuentra direcciones fácilmente escribiendo nombres de calles, ciudades o códigos postales, similar a Google Maps
 - **Mapa Interactivo**: Visualiza todos los puntos de entrega en un mapa usando Leaflet.js
 - **Optimización Inteligente**: Calcula la ruta más eficiente usando el algoritmo del vecino más cercano (Nearest Neighbor)
 - **Orden de Paradas**: Muestra la secuencia óptima de entregas con distancias entre paradas
@@ -20,9 +21,9 @@ Sistema web interactivo para la optimización de rutas de entrega basado en teor
 
 1. Abre el archivo `index.html` en tu navegador web
 2. Agrega puntos de entrega de tres formas:
+   - **Búsqueda con autocompletado**: Escribe una dirección y selecciona de las sugerencias (¡como Google Maps!)
    - Haciendo clic directamente en el mapa
    - Ingresando coordenadas (formato: lat, lng)
-   - Escribiendo una dirección para búsqueda automática
 3. Haz clic en "Optimizar Ruta" para calcular la mejor ruta
 4. Visualiza la ruta óptima con el orden sugerido de paradas
 5. Usa el botón "📍 GPS" para abrir cada destino en Google Maps

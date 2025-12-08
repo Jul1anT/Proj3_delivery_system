@@ -25,20 +25,29 @@ Luego abre `http://localhost:8080` en tu navegador.
 
 ## 📍 Agregar Puntos de Entrega
 
-### Método 1: Click en el Mapa
+### Método 1: Buscar Dirección (¡NUEVO! con Autocompletado)
+1. Empieza a escribir una dirección en el campo de búsqueda
+2. **Autocompletado inteligente**: Después de escribir 3 caracteres, aparecerán sugerencias automáticamente
+3. Ejemplos de búsqueda:
+   - Por calle: "Av Reforma"
+   - Por lugar: "Torre Latinoamericana"
+   - Por ciudad: "Ciudad de México"
+   - Por código postal: "06600"
+4. **Navega las sugerencias**:
+   - Usa las flechas ↑ ↓ del teclado para moverte entre sugerencias
+   - Haz clic en cualquier sugerencia para seleccionarla
+   - Presiona Enter para seleccionar la sugerencia resaltada
+   - Presiona Esc para cerrar las sugerencias
+5. La dirección seleccionada se agregará automáticamente al mapa
+
+### Método 2: Click en el Mapa
 - Simplemente haz click en cualquier ubicación del mapa
 - Se agregará automáticamente un punto de entrega en esa ubicación
 
-### Método 2: Ingresar Coordenadas
-1. En el campo "Dirección o coordenadas", ingresa las coordenadas en formato: `latitud, longitud`
+### Método 3: Ingresar Coordenadas
+1. En el campo de búsqueda, ingresa las coordenadas en formato: `latitud, longitud`
 2. Ejemplo: `19.4326, -99.1332`
 3. Presiona "Agregar Punto" o Enter
-
-### Método 3: Buscar Dirección
-1. Escribe una dirección en el campo de texto
-2. Ejemplo: "Torre Latinoamericana, Ciudad de México"
-3. El sistema geocodificará la dirección automáticamente
-4. Presiona "Agregar Punto" o Enter
 
 ## 🎯 Optimizar la Ruta
 
