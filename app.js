@@ -8,7 +8,15 @@ class DeliveryOptimizer {
         this.markers = [];
         this.routePolyline = null;
         this.optimizedRoute = null;
+        this.pointIdCounter = 0;
         this.init();
+    }
+
+    // Escape HTML to prevent XSS
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     init() {
@@ -57,12 +65,18 @@ class DeliveryOptimizer {
         if (!input) return;
 
         // Try to parse as coordinates (lat, lng)
-        const coordMatch = input.match(/(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
+        const coordMatch = input.match(/(-?\d+\.?\d+),\s*(-?\d+\.?\d+)/);
         if (coordMatch) {
             const lat = parseFloat(coordMatch[1]);
             const lng = parseFloat(coordMatch[2]);
-            this.addPoint(lat, lng);
-            document.getElementById('addressInput').value = '';
+            
+            // Validate coordinate ranges
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                this.addPoint(lat, lng);
+                document.getElementById('addressInput').value = '';
+            } else {
+                alert('Coordenadas inválidas. Latitud debe estar entre -90 y 90, Longitud entre -180 y 180.');
+            }
         } else {
             // Use Nominatim geocoding service for address lookup
             this.geocodeAddress(input);
@@ -79,9 +93,15 @@ class DeliveryOptimizer {
             if (data && data.length > 0) {
                 const lat = parseFloat(data[0].lat);
                 const lng = parseFloat(data[0].lon);
-                this.addPoint(lat, lng, data[0].display_name);
-                document.getElementById('addressInput').value = '';
-                this.map.setView([lat, lng], 13);
+                
+                // Validate coordinate ranges
+                if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    this.addPoint(lat, lng, data[0].display_name);
+                    document.getElementById('addressInput').value = '';
+                    this.map.setView([lat, lng], 13);
+                } else {
+                    alert('Coordenadas inválidas recibidas del servicio de geocodificación.');
+                }
             } else {
                 alert('No se pudo encontrar la dirección. Intenta con coordenadas (lat, lng).');
             }
@@ -93,7 +113,7 @@ class DeliveryOptimizer {
 
     addPoint(lat, lng, address = null) {
         const point = {
-            id: Date.now(),
+            id: ++this.pointIdCounter,
             lat: lat,
             lng: lng,
             address: address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
@@ -118,7 +138,7 @@ class DeliveryOptimizer {
         marker.bindPopup(`
             <div style="text-align: center;">
                 <strong>Punto ${this.points.length}</strong><br>
-                ${point.address}<br>
+                ${this.escapeHtml(point.address)}<br>
                 <button onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})" 
                         style="margin-top: 10px; padding: 8px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer;">
                     📍 Abrir en Google Maps
@@ -166,7 +186,7 @@ class DeliveryOptimizer {
             div.innerHTML = `
                 <div class="point-info">
                     <span class="point-number">${index + 1}</span>
-                    <div class="point-coords">${point.address}</div>
+                    <div class="point-coords">${this.escapeHtml(point.address)}</div>
                 </div>
                 <div class="point-actions">
                     <button class="btn btn-small btn-maps" onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})">
@@ -220,7 +240,7 @@ class DeliveryOptimizer {
             marker.bindPopup(`
                 <div style="text-align: center;">
                     <strong>Punto ${index + 1}</strong><br>
-                    ${point.address}<br>
+                    ${this.escapeHtml(point.address)}<br>
                     <button onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})" 
                             style="margin-top: 10px; padding: 8px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer;">
                         📍 Abrir en Google Maps
@@ -403,7 +423,7 @@ class DeliveryOptimizer {
             marker.bindPopup(`
                 <div style="text-align: center;">
                     <strong>Parada ${routeOrder + 1}</strong><br>
-                    ${point.address}<br>
+                    ${this.escapeHtml(point.address)}<br>
                     <button onclick="app.openInGoogleMaps(${point.lat}, ${point.lng})" 
                             style="margin-top: 10px; padding: 8px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer;">
                         📍 Abrir en Google Maps
@@ -456,7 +476,7 @@ class DeliveryOptimizer {
             html += `
                 <div class="route-step">
                     <span class="route-step-number">Parada ${i + 1}:</span>
-                    ${point.address}
+                    ${this.escapeHtml(point.address)}
                     ${i < route.length - 1 ? `<div class="route-distance">↓ ${distance.toFixed(2)} km</div>` : ''}
                 </div>
             `;
