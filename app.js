@@ -343,7 +343,7 @@ class DeliveryOptimizer {
                 alert('Address not found. Try with coordinates (lat, lng).');
             }
         } catch (error) {
-            console.error('Error al geocodificar:', error);
+            console.error('Error geocoding:', error);
             alert('Error searching for address. Try with coordinates (lat, lng).');
         }
     }
