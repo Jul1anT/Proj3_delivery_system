@@ -12,6 +12,9 @@ class DeliveryOptimizer {
         this.autocompleteResults = [];
         this.selectedAutocompleteIndex = -1;
         this.autocompleteTimeout = null;
+        this.lastGeocodingCall = 0;
+        this.GEOCODING_DELAY = 1000; // Rate limit: 1 second between calls
+        this.COORDINATE_REGEX = /(-?\d+(?:\.\d+)?),?\s*(-?\d+(?:\.\d+)?)/;
         this.init();
     }
 
@@ -97,7 +100,7 @@ class DeliveryOptimizer {
         }
 
         // Check if it's coordinates
-        const coordMatch = trimmedValue.match(/(-?\d+\.?\d*),?\s*(-?\d+\.?\d*)/);
+        const coordMatch = trimmedValue.match(this.COORDINATE_REGEX);
         if (coordMatch) {
             this.hideAutocomplete();
             return;
@@ -114,9 +117,23 @@ class DeliveryOptimizer {
 
     async fetchAddressSuggestions(query) {
         try {
+            // Rate limiting: ensure at least 1 second between calls
+            const now = Date.now();
+            const timeSinceLastCall = now - this.lastGeocodingCall;
+            if (timeSinceLastCall < this.GEOCODING_DELAY) {
+                await new Promise(resolve => setTimeout(resolve, this.GEOCODING_DELAY - timeSinceLastCall));
+            }
+            this.lastGeocodingCall = Date.now();
+
             // Use Nominatim's search API with more detailed results
+            // Including User-Agent header as per Nominatim usage policy
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
+                {
+                    headers: {
+                        'User-Agent': 'DeliveryRouteOptimizer/1.0'
+                    }
+                }
             );
             const data = await response.json();
             
@@ -268,7 +285,7 @@ class DeliveryOptimizer {
         this.hideAutocomplete();
 
         // Try to parse as coordinates (lat, lng)
-        const coordMatch = input.match(/(-?\d+\.?\d+),\s*(-?\d+\.?\d+)/);
+        const coordMatch = input.match(this.COORDINATE_REGEX);
         if (coordMatch) {
             const lat = parseFloat(coordMatch[1]);
             const lng = parseFloat(coordMatch[2]);
@@ -292,8 +309,21 @@ class DeliveryOptimizer {
 
     async geocodeAddress(address) {
         try {
+            // Rate limiting
+            const now = Date.now();
+            const timeSinceLastCall = now - this.lastGeocodingCall;
+            if (timeSinceLastCall < this.GEOCODING_DELAY) {
+                await new Promise(resolve => setTimeout(resolve, this.GEOCODING_DELAY - timeSinceLastCall));
+            }
+            this.lastGeocodingCall = Date.now();
+
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
+                {
+                    headers: {
+                        'User-Agent': 'DeliveryRouteOptimizer/1.0'
+                    }
+                }
             );
             const data = await response.json();
             
