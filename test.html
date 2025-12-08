@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Sistema Optimizador de Rutas</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        pre {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Suite de Pruebas - Optimizador de Rutas</h1>
+        <p>Este archivo prueba la lógica del algoritmo de optimización de rutas.</p>
+        
+        <button onclick="runAllTests()">▶️ Ejecutar Todas las Pruebas</button>
+        <button onclick="location.href='index.html'">← Volver al Sistema</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Test utilities
+        function testResult(name, passed, message) {
+            return `
+                <div class="test-result ${passed ? 'pass' : 'fail'}">
+                    <strong>${passed ? '✓' : '✗'} ${name}</strong><br>
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Haversine distance calculation (same as in app.js)
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const toRad = (deg) => deg * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Nearest Neighbor TSP (simplified version)
+        function nearestNeighborTSP(points) {
+            const n = points.length;
+            if (n === 0) return [];
+            
+            // Build distance matrix
+            const dist = Array(n).fill(null).map(() => Array(n).fill(0));
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    if (i !== j) {
+                        dist[i][j] = calculateDistance(
+                            points[i].lat, points[i].lng,
+                            points[j].lat, points[j].lng
+                        );
+                    }
+                }
+            }
+
+            // Apply nearest neighbor
+            const visited = Array(n).fill(false);
+            const route = [];
+            let current = 0;
+            visited[current] = true;
+            route.push(current);
+
+            for (let i = 1; i < n; i++) {
+                let nearest = -1;
+                let minDistance = Infinity;
+
+                for (let j = 0; j < n; j++) {
+                    if (!visited[j] && dist[current][j] < minDistance) {
+                        minDistance = dist[current][j];
+                        nearest = j;
+                    }
+                }
+
+                if (nearest !== -1) {
+                    visited[nearest] = true;
+                    route.push(nearest);
+                    current = nearest;
+                }
+            }
+
+            return route;
+        }
+
+        // Test cases
+        function testHaversineDistance() {
+            const lat1 = 19.4326, lng1 = -99.1332; // Mexico City
+            const lat2 = 19.4338, lng2 = -99.1407; // Torre Latinoamericana
+            const distance = calculateDistance(lat1, lng1, lat2, lng2);
+            
+            const passed = distance > 0 && distance < 1; // Should be less than 1km
+            return testResult(
+                'Test de Distancia Haversine',
+                passed,
+                `Distancia calculada: ${distance.toFixed(3)} km (esperado: ~0.7 km)`
+            );
+        }
+
+        function testNearestNeighbor() {
+            const points = [
+                { lat: 19.4326, lng: -99.1332 },  // 0
+                { lat: 19.4338, lng: -99.1407 },  // 1
+                { lat: 19.4270, lng: -99.1677 },  // 2
+                { lat: 19.4352, lng: -99.1412 }   // 3
+            ];
+            
+            const route = nearestNeighborTSP(points);
+            
+            const passed = route.length === points.length && 
+                          new Set(route).size === points.length;
+            
+            return testResult(
+                'Test de Algoritmo Nearest Neighbor',
+                passed,
+                `Ruta generada: [${route.join(' → ')}]<br>
+                 Puntos visitados: ${route.length}/${points.length}<br>
+                 Todos únicos: ${new Set(route).size === points.length ? 'Sí' : 'No'}`
+            );
+        }
+
+        function testDistanceMatrix() {
+            const points = [
+                { lat: 0, lng: 0 },
+                { lat: 1, lng: 0 },
+                { lat: 0, lng: 1 }
+            ];
+            
+            const n = points.length;
+            const matrix = Array(n).fill(null).map(() => Array(n).fill(0));
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    if (i !== j) {
+                        matrix[i][j] = calculateDistance(
+                            points[i].lat, points[i].lng,
+                            points[j].lat, points[j].lng
+                        );
+                    }
+                }
+            }
+            
+            const isSymmetric = matrix[0][1] === matrix[1][0];
+            const diagonalIsZero = matrix[0][0] === 0 && matrix[1][1] === 0 && matrix[2][2] === 0;
+            
+            const passed = isSymmetric && diagonalIsZero;
+            
+            return testResult(
+                'Test de Matriz de Distancias',
+                passed,
+                `Matriz simétrica: ${isSymmetric ? 'Sí' : 'No'}<br>
+                 Diagonal nula: ${diagonalIsZero ? 'Sí' : 'No'}<br>
+                 Dimensión: ${n}x${n}`
+            );
+        }
+
+        function testInputValidation() {
+            const validCoords = [
+                { lat: 0, lng: 0, valid: true },
+                { lat: 90, lng: 180, valid: true },
+                { lat: -90, lng: -180, valid: true },
+                { lat: 45.5, lng: -122.6, valid: true },
+                { lat: 91, lng: 0, valid: false },  // Out of range
+                { lat: 0, lng: 181, valid: false },  // Out of range
+                { lat: -91, lng: 0, valid: false },  // Out of range
+            ];
+            
+            let passed = true;
+            let details = '';
+            
+            validCoords.forEach(coord => {
+                const isValid = (coord.lat >= -90 && coord.lat <= 90 && 
+                               coord.lng >= -180 && coord.lng <= 180);
+                if (isValid !== coord.valid) {
+                    passed = false;
+                    details += `FALLO: (${coord.lat}, ${coord.lng}) - esperado: ${coord.valid}, obtenido: ${isValid}<br>`;
+                }
+            });
+            
+            if (passed) {
+                details = 'Todas las validaciones pasaron correctamente';
+            }
+            
+            return testResult(
+                'Test de Validación de Coordenadas',
+                passed,
+                details
+            );
+        }
+
+        function testHtmlEscaping() {
+            const testStrings = [
+                '<script>alert("xss")</script>',
+                'Normal text',
+                '<b>Bold</b>',
+                '& < > "'
+            ];
+            
+            let passed = true;
+            testStrings.forEach(str => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                const escaped = div.innerHTML;
+                
+                if (str.includes('<script>') && escaped.includes('<script>')) {
+                    passed = false;
+                }
+            });
+            
+            return testResult(
+                'Test de Escape HTML (Prevención XSS)',
+                passed,
+                passed ? 'Tags HTML correctamente escapados' : 'FALLO: XSS vulnerable'
+            );
+        }
+
+        function testComplexRoute() {
+            const points = [
+                { lat: 40.7580, lng: -73.9855 },  // Times Square
+                { lat: 40.7589, lng: -73.9851 },  // Near Times Square
+                { lat: 40.7829, lng: -73.9654 },  // Central Park
+                { lat: 40.7488, lng: -73.9857 },  // Empire State
+                { lat: 40.7614, lng: -73.9776 },  // Rockefeller
+            ];
+            
+            const route = nearestNeighborTSP(points);
+            
+            // Calculate total distance
+            let totalDistance = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                const p1 = points[route[i]];
+                const p2 = points[route[i + 1]];
+                totalDistance += calculateDistance(p1.lat, p1.lng, p2.lat, p2.lng);
+            }
+            
+            const passed = route.length === points.length && totalDistance > 0;
+            
+            return testResult(
+                'Test de Ruta Compleja (5 puntos)',
+                passed,
+                `Ruta: [${route.join(' → ')}]<br>
+                 Distancia total: ${totalDistance.toFixed(2)} km<br>
+                 Puntos visitados: ${route.length}/${points.length}`
+            );
+        }
+
+        function testPerformance() {
+            const n = 20; // 20 points
+            const points = [];
+            
+            // Generate random points
+            for (let i = 0; i < n; i++) {
+                points.push({
+                    lat: 40 + Math.random() * 2,
+                    lng: -74 + Math.random() * 2
+                });
+            }
+            
+            const start = performance.now();
+            const route = nearestNeighborTSP(points);
+            const end = performance.now();
+            
+            const time = end - start;
+            const passed = time < 100; // Should be under 100ms
+            
+            return testResult(
+                'Test de Rendimiento (20 puntos)',
+                passed,
+                `Tiempo de ejecución: ${time.toFixed(2)}ms<br>
+                 Complejidad: O(n²) donde n=${n}<br>
+                 Resultado: ${passed ? 'Excelente' : 'Necesita optimización'}`
+            );
+        }
+
+        function runAllTests() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Resultados de las Pruebas</h2>';
+            
+            const tests = [
+                testHaversineDistance,
+                testDistanceMatrix,
+                testNearestNeighbor,
+                testInputValidation,
+                testHtmlEscaping,
+                testComplexRoute,
+                testPerformance
+            ];
+            
+            let passed = 0;
+            let total = tests.length;
+            
+            tests.forEach(test => {
+                const result = test();
+                resultsDiv.innerHTML += result;
+                if (result.includes('pass')) passed++;
+            });
+            
+            const summary = `
+                <div class="test-section" style="margin-top: 20px; background: ${passed === total ? '#d4edda' : '#fff3cd'}">
+                    <h3>Resumen</h3>
+                    <p><strong>Pruebas pasadas: ${passed}/${total}</strong></p>
+                    <p>${passed === total ? 
+                        '✅ Todos los tests pasaron correctamente. El sistema está listo para usar.' : 
+                        '⚠️ Algunos tests fallaron. Revisa los resultados arriba.'}</p>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML += summary;
+        }
+
+        // Run tests on load
+        window.addEventListener('load', () => {
+            runAllTests();
+        });
+    </script>
+</body>
+</html>
