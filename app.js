@@ -60,6 +60,10 @@ class DeliveryOptimizer {
         });
     }
 
+    clearAddressInput() {
+        document.getElementById('addressInput').value = '';
+    }
+
     addPointFromInput() {
         const input = document.getElementById('addressInput').value.trim();
         if (!input) return;
@@ -73,7 +77,7 @@ class DeliveryOptimizer {
             // Validate coordinate ranges
             if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
                 this.addPoint(lat, lng);
-                document.getElementById('addressInput').value = '';
+                this.clearAddressInput();
             } else {
                 alert('Coordenadas inválidas. Latitud debe estar entre -90 y 90, Longitud entre -180 y 180.');
             }
@@ -97,7 +101,7 @@ class DeliveryOptimizer {
                 // Validate coordinate ranges
                 if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
                     this.addPoint(lat, lng, data[0].display_name);
-                    document.getElementById('addressInput').value = '';
+                    this.clearAddressInput();
                     this.map.setView([lat, lng], 13);
                 } else {
                     alert('Coordenadas inválidas recibidas del servicio de geocodificación.');
