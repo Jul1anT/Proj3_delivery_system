@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Académica - Sistema Optimizador de Rutas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .document {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .metadata {
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .abstract {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 30px 0;
+            border-left: 4px solid #667eea;
+            font-style: italic;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .algorithm {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .algorithm-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .figure {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .figure-caption {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .references {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #333;
+        }
+
+        .reference {
+            margin-bottom: 10px;
+            text-indent: -30px;
+            padding-left: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: #667eea;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .emphasis {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .document {
+                box-shadow: none;
+                padding: 40px;
+            }
+
+            .back-link {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <a href="index.html" class="back-link">← Volver al Sistema</a>
+
+        <div class="header">
+            <h1>Sistema Optimizador de Rutas de Entrega basado en Teoría de Grafos</h1>
+            <div class="subtitle">Un Enfoque Algorítmico para la Optimización Logística</div>
+            <div class="metadata">
+                <p>Documentación Técnica y Académica</p>
+                <p>Diciembre 2025</p>
+            </div>
+        </div>
+
+        <div class="abstract">
+            <strong>Resumen:</strong> Este documento presenta un sistema web interactivo para la optimización de rutas de entrega utilizando principios de teoría de grafos y algoritmos heurísticos. El sistema implementa el algoritmo del vecino más cercano (Nearest Neighbor) para resolver una variante del Problema del Viajante (TSP - Traveling Salesman Problem), proporcionando soluciones en tiempo real para la planificación de rutas logísticas. La implementación incluye visualización geográfica interactiva, cálculo de distancias mediante la fórmula de Haversine e integración con servicios de mapas para navegación GPS.
+        </div>
+
+        <h2>1. Introducción</h2>
+        
+        <h3>1.1 Contexto y Motivación</h3>
+        <p>
+            La optimización de rutas es un problema fundamental en logística y distribución. Las empresas de entrega enfrentan diariamente el desafío de planificar rutas eficientes que minimicen el tiempo de recorrido, el consumo de combustible y los costos operativos. Este problema se puede modelar matemáticamente como un grafo, donde los puntos de entrega representan nodos y las distancias entre ellos representan aristas ponderadas.
+        </p>
+
+        <h3>1.2 Objetivos del Sistema</h3>
+        <ul>
+            <li>Proporcionar una interfaz web intuitiva para la gestión de puntos de entrega</li>
+            <li>Calcular automáticamente la ruta más eficiente entre múltiples destinos</li>
+            <li>Visualizar la ruta óptima en un mapa interactivo</li>
+            <li>Integrar con servicios de navegación GPS para facilitar la ejecución de entregas</li>
+            <li>Demostrar la aplicación práctica de algoritmos de teoría de grafos</li>
+        </ul>
+
+        <h2>2. Fundamentos Teóricos</h2>
+
+        <h3>2.1 Teoría de Grafos</h3>
+        <p>
+            Un <span class="emphasis">grafo</span> G = (V, E) es una estructura matemática que consiste en un conjunto de vértices V y un conjunto de aristas E que conectan pares de vértices. En nuestro contexto:
+        </p>
+        <ul>
+            <li><strong>Vértices (V):</strong> Representan los puntos de entrega con coordenadas geográficas (latitud, longitud)</li>
+            <li><strong>Aristas (E):</strong> Representan las conexiones entre puntos, ponderadas por la distancia</li>
+            <li><strong>Grafo Completo:</strong> Cada punto está conectado con todos los demás puntos</li>
+            <li><strong>Grafo Ponderado:</strong> Cada arista tiene un peso que representa la distancia entre puntos</li>
+        </ul>
+
+        <h3>2.2 El Problema del Viajante (TSP)</h3>
+        <p>
+            El Traveling Salesman Problem (TSP) es un problema clásico de optimización combinatoria que busca encontrar la ruta más corta que visita cada ciudad exactamente una vez y regresa al punto de origen. Formalmente:
+        </p>
+        <div class="formula">
+            min Σ d(i,j) para todo (i,j) en el recorrido
+        </div>
+        <p>
+            Donde d(i,j) representa la distancia entre los puntos i y j. El TSP es un problema NP-completo, lo que significa que no existe un algoritmo conocido que pueda resolver todas las instancias del problema en tiempo polinomial.
+        </p>
+
+        <h3>2.3 Cálculo de Distancias: Fórmula de Haversine</h3>
+        <p>
+            Para calcular la distancia entre dos puntos geográficos en la superficie de la Tierra, utilizamos la fórmula de Haversine, que considera la curvatura terrestre:
+        </p>
+        <div class="formula">
+            a = sin²(Δφ/2) + cos(φ₁) × cos(φ₂) × sin²(Δλ/2)<br>
+            c = 2 × atan2(√a, √(1-a))<br>
+            d = R × c
+        </div>
+        <p>Donde:</p>
+        <ul>
+            <li>φ₁, φ₂: latitud de los puntos 1 y 2 (en radianes)</li>
+            <li>Δφ: diferencia de latitudes</li>
+            <li>Δλ: diferencia de longitudes</li>
+            <li>R: radio de la Tierra (6371 km)</li>
+            <li>d: distancia entre los puntos</li>
+        </ul>
+
+        <h2>3. Metodología y Algoritmos</h2>
+
+        <h3>3.1 Algoritmo del Vecino Más Cercano</h3>
+        <p>
+            Debido a la complejidad computacional del TSP, utilizamos el <span class="emphasis">algoritmo del vecino más cercano</span>, una heurística greedy que proporciona soluciones aproximadas en tiempo O(n²). Este algoritmo es adecuado para aplicaciones en tiempo real.
+        </p>
+
+        <div class="algorithm">
+            <div class="algorithm-title">Algoritmo del Vecino Más Cercano:</div>
+            <ol>
+                <li>Iniciar en un nodo arbitrario (punto de partida)</li>
+                <li>Marcar el nodo actual como visitado</li>
+                <li>Entre todos los nodos no visitados, seleccionar el más cercano al nodo actual</li>
+                <li>Moverse al nodo seleccionado</li>
+                <li>Repetir los pasos 2-4 hasta que todos los nodos hayan sido visitados</li>
+                <li>Retornar la secuencia de nodos visitados como la ruta óptima</li>
+            </ol>
+        </div>
+
+        <h3>3.2 Construcción de la Matriz de Distancias</h3>
+        <p>
+            El algoritmo requiere una matriz de distancias D donde D[i][j] representa la distancia entre el punto i y el punto j. Esta matriz es:
+        </p>
+        <ul>
+            <li><strong>Simétrica:</strong> D[i][j] = D[j][i]</li>
+            <li><strong>Diagonal nula:</strong> D[i][i] = 0</li>
+            <li><strong>Tamaño:</strong> n × n donde n es el número de puntos de entrega</li>
+        </ul>
+
+        <h3>3.3 Complejidad Computacional</h3>
+        <table>
+            <tr>
+                <th>Operación</th>
+                <th>Complejidad</th>
+                <th>Descripción</th>
+            </tr>
+            <tr>
+                <td>Construcción de matriz</td>
+                <td>O(n²)</td>
+                <td>Cálculo de distancias entre todos los pares de puntos</td>
+            </tr>
+            <tr>
+                <td>Algoritmo vecino más cercano</td>
+                <td>O(n²)</td>
+                <td>Para cada punto, buscar el vecino más cercano</td>
+            </tr>
+            <tr>
+                <td>Complejidad total</td>
+                <td>O(n²)</td>
+                <td>Eficiente para aplicaciones en tiempo real</td>
+            </tr>
+        </table>
+
+        <h2>4. Arquitectura del Sistema</h2>
+
+        <h3>4.1 Componentes Principales</h3>
+        <p>El sistema está construido con una arquitectura cliente-servidor simple basada en tecnologías web estándar:</p>
+        
+        <ul>
+            <li><strong>Frontend (Cliente):</strong>
+                <ul>
+                    <li>HTML5: Estructura del documento</li>
+                    <li>CSS3: Diseño moderno y responsivo</li>
+                    <li>JavaScript ES6+: Lógica de la aplicación</li>
+                    <li>Leaflet.js: Biblioteca de mapas interactivos</li>
+                </ul>
+            </li>
+            <li><strong>Servicios Externos:</strong>
+                <ul>
+                    <li>OpenStreetMap: Tiles de mapas y datos geográficos</li>
+                    <li>Nominatim: Servicio de geocodificación</li>
+                    <li>Google Maps: Navegación GPS</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>4.2 Flujo de Datos</h3>
+        <ol>
+            <li><strong>Entrada de Datos:</strong> El usuario agrega puntos de entrega mediante clicks en el mapa o ingresando direcciones</li>
+            <li><strong>Geocodificación:</strong> Las direcciones se convierten en coordenadas geográficas</li>
+            <li><strong>Almacenamiento:</strong> Los puntos se almacenan en una estructura de datos en memoria</li>
+            <li><strong>Procesamiento:</strong> Al solicitar optimización, se construye la matriz de distancias</li>
+            <li><strong>Optimización:</strong> Se ejecuta el algoritmo del vecino más cercano</li>
+            <li><strong>Visualización:</strong> La ruta óptima se muestra en el mapa con marcadores numerados</li>
+            <li><strong>Navegación:</strong> Integración con Google Maps para cada parada</li>
+        </ol>
+
+        <h3>4.3 Clase Principal: DeliveryOptimizer</h3>
+        <p>La clase <code>DeliveryOptimizer</code> encapsula toda la lógica del sistema:</p>
+        <ul>
+            <li><code>init()</code>: Inicializa el mapa y los event listeners</li>
+            <li><code>addPoint()</code>: Agrega un nuevo punto de entrega</li>
+            <li><code>buildDistanceMatrix()</code>: Construye la matriz de distancias</li>
+            <li><code>nearestNeighborTSP()</code>: Implementa el algoritmo de optimización</li>
+            <li><code>displayRoute()</code>: Visualiza la ruta en el mapa</li>
+            <li><code>openInGoogleMaps()</code>: Integración con navegación GPS</li>
+        </ul>
+
+        <h2>5. Funcionalidades del Sistema</h2>
+
+        <h3>5.1 Gestión de Puntos de Entrega</h3>
+        <ul>
+            <li>Agregar puntos mediante click en el mapa</li>
+            <li>Agregar puntos mediante ingreso de coordenadas (lat, lng)</li>
+            <li>Agregar puntos mediante búsqueda de direcciones</li>
+            <li>Eliminar puntos individualmente</li>
+            <li>Limpiar todos los puntos</li>
+            <li>Visualización de lista con coordenadas</li>
+        </ul>
+
+        <h3>5.2 Optimización de Rutas</h3>
+        <ul>
+            <li>Cálculo automático de la ruta más eficiente</li>
+            <li>Visualización de la ruta en el mapa con líneas conectadas</li>
+            <li>Indicadores direccionales (flechas) mostrando el sentido del recorrido</li>
+            <li>Marcadores numerados indicando el orden de paradas</li>
+            <li>Información detallada de cada tramo con distancias</li>
+            <li>Cálculo de distancia total del recorrido</li>
+        </ul>
+
+        <h3>5.3 Integración con Google Maps</h3>
+        <p>
+            Cada punto de entrega incluye un botón que abre Google Maps con:
+        </p>
+        <ul>
+            <li>Coordenadas exactas del destino</li>
+            <li>Modo de navegación activado</li>
+            <li>Ruta desde la ubicación actual del usuario (GPS)</li>
+            <li>Instrucciones paso a paso en tiempo real</li>
+        </ul>
+
+        <h3>5.4 Interfaz de Usuario</h3>
+        <p>El diseño sigue principios de diseño moderno y minimalista:</p>
+        <ul>
+            <li><strong>Layout responsivo:</strong> Adaptable a diferentes tamaños de pantalla</li>
+            <li><strong>Paleta de colores:</strong> Gradientes suaves y colores contrastantes</li>
+            <li><strong>Tipografía:</strong> Fuentes sans-serif para legibilidad</li>
+            <li><strong>Feedback visual:</strong> Transiciones suaves y efectos hover</li>
+            <li><strong>Accesibilidad:</strong> Botones grandes y etiquetas claras</li>
+        </ul>
+
+        <h2>6. Análisis de Rendimiento</h2>
+
+        <h3>6.1 Eficiencia del Algoritmo</h3>
+        <p>
+            El algoritmo del vecino más cercano ofrece un buen balance entre calidad de solución y velocidad de ejecución:
+        </p>
+        <ul>
+            <li><strong>Ventajas:</strong>
+                <ul>
+                    <li>Tiempo de ejecución rápido: O(n²)</li>
+                    <li>Implementación simple y comprensible</li>
+                    <li>Soluciones aceptables para casos prácticos</li>
+                    <li>No requiere recursos computacionales intensivos</li>
+                </ul>
+            </li>
+            <li><strong>Limitaciones:</strong>
+                <ul>
+                    <li>No garantiza la solución óptima global</li>
+                    <li>La calidad de la solución puede variar según el punto de partida</li>
+                    <li>Para n grande, otras heurísticas pueden ser más efectivas</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>6.2 Comparación de Aproximación</h3>
+        <p>
+            En promedio, el algoritmo del vecino más cercano produce rutas que son aproximadamente 25% más largas que la solución óptima, lo cual es aceptable para aplicaciones prácticas de entrega.
+        </p>
+
+        <h2>7. Casos de Uso y Aplicaciones</h2>
+
+        <h3>7.1 Sector Logístico</h3>
+        <ul>
+            <li>Empresas de mensajería y paquetería</li>
+            <li>Servicios de entrega de alimentos</li>
+            <li>Distribución de mercancías</li>
+            <li>Rutas de transporte escolar</li>
+        </ul>
+
+        <h3>7.2 Otros Sectores</h3>
+        <ul>
+            <li>Servicios de mantenimiento y reparación</li>
+            <li>Rutas de inspección y supervisión</li>
+            <li>Servicios médicos domiciliarios</li>
+            <li>Turismo y planificación de itinerarios</li>
+        </ul>
+
+        <h2>8. Trabajo Futuro</h2>
+
+        <h3>8.1 Mejoras Algorítmicas</h3>
+        <ul>
+            <li>Implementar algoritmo de optimización 2-opt para mejorar rutas</li>
+            <li>Considerar restricciones de ventanas de tiempo</li>
+            <li>Incorporar información de tráfico en tiempo real</li>
+            <li>Soporte para múltiples vehículos (VRP - Vehicle Routing Problem)</li>
+        </ul>
+
+        <h3>8.2 Características Adicionales</h3>
+        <ul>
+            <li>Guardado y carga de rutas</li>
+            <li>Exportación de rutas a diferentes formatos</li>
+            <li>Estimación de tiempos de entrega</li>
+            <li>Integración con sistemas de gestión empresarial</li>
+            <li>Aplicación móvil nativa</li>
+        </ul>
+
+        <h2>9. Conclusiones</h2>
+        <p>
+            Este sistema demuestra la aplicación práctica de conceptos de teoría de grafos y algoritmos de optimización en un contexto real. La combinación de algoritmos eficientes, visualización interactiva e integración con servicios modernos de mapas crea una herramienta útil y accesible para la optimización de rutas de entrega.
+        </p>
+        <p>
+            El enfoque minimalista y la interfaz intuitiva hacen que el sistema sea fácil de usar incluso para usuarios sin conocimientos técnicos, mientras que la documentación proporciona comprensión de los fundamentos teóricos subyacentes.
+        </p>
+        <p>
+            La arquitectura web del sistema lo hace inmediatamente accesible desde cualquier dispositivo con navegador, eliminando barreras de instalación y facilitando su adopción en diferentes contextos organizacionales.
+        </p>
+
+        <div class="references">
+            <h2>Referencias</h2>
+            <div class="reference">
+                [1] Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). <em>Introduction to Algorithms</em> (3rd ed.). MIT Press.
+            </div>
+            <div class="reference">
+                [2] Lawler, E. L., Lenstra, J. K., Rinnooy Kan, A. H. G., & Shmoys, D. B. (1985). <em>The Traveling Salesman Problem: A Guided Tour of Combinatorial Optimization</em>. Wiley.
+            </div>
+            <div class="reference">
+                [3] Applegate, D. L., Bixby, R. E., Chvátal, V., & Cook, W. J. (2006). <em>The Traveling Salesman Problem: A Computational Study</em>. Princeton University Press.
+            </div>
+            <div class="reference">
+                [4] Laporte, G. (1992). The traveling salesman problem: An overview of exact and approximate algorithms. <em>European Journal of Operational Research</em>, 59(2), 231-247.
+            </div>
+            <div class="reference">
+                [5] Rosenkrantz, D. J., Stearns, R. E., & Lewis, P. M. (1977). An analysis of several heuristics for the traveling salesman problem. <em>SIAM Journal on Computing</em>, 6(3), 563-581.
+            </div>
+            <div class="reference">
+                [6] Leaflet - an open-source JavaScript library for interactive maps. <em>https://leafletjs.com/</em>
+            </div>
+            <div class="reference">
+                [7] OpenStreetMap contributors. (2023). <em>OpenStreetMap</em>. Retrieved from https://www.openstreetmap.org
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Optimizador de Rutas de Entrega</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Optimizador de Rutas de Entrega</h1>
+            <p class="subtitle">Sistema inteligente de optimización de rutas basado en grafos</p>
+        </header>
+
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="section">
+                    <h2>Agregar Punto de Entrega</h2>
+                    <div class="form-group">
+                        <input type="text" id="addressInput" placeholder="Dirección o coordenadas (lat, lng)">
+                        <button id="addPointBtn" class="btn btn-primary">Agregar Punto</button>
+                    </div>
+                    <p class="help-text">Haz clic en el mapa o ingresa una dirección</p>
+                </div>
+
+                <div class="section">
+                    <h2>Puntos de Entrega</h2>
+                    <div id="pointsList" class="points-list"></div>
+                </div>
+
+                <div class="section">
+                    <button id="optimizeBtn" class="btn btn-success btn-large">
+                        🚀 Optimizar Ruta
+                    </button>
+                    <button id="clearBtn" class="btn btn-secondary">
+                        🗑️ Limpiar Todo
+                    </button>
+                </div>
+
+                <div id="routeInfo" class="section route-info" style="display: none;">
+                    <h2>Información de la Ruta</h2>
+                    <div id="routeDetails"></div>
+                </div>
+            </div>
+
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Sistema desarrollado con algoritmos de optimización basados en teoría de grafos</p>
+            <a href="documentation.html" class="doc-link">📖 Ver Documentación Académica</a>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
