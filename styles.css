@@ -388,3 +388,8 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
     background: #5568d3;
 }
+
+/* Hide Leaflet Routing Machine control panel (we use OSRM API directly) */
+.leaflet-routing-container {
+    display: none;
+}

@@ -15,6 +15,8 @@ class DeliveryOptimizer {
         this.lastGeocodingCall = 0;
         this.GEOCODING_DELAY = 1000; // Rate limit: 1 second between calls
         this.COORDINATE_REGEX = /(-?\d+(?:\.\d+)?),?\s*(-?\d+(?:\.\d+)?)/;
+        this.routeLines = []; // Store route polylines
+        this.routingCache = new Map(); // Cache for routing requests
         this.init();
     }
 
@@ -502,6 +504,13 @@ class DeliveryOptimizer {
             this.map.removeLayer(this.routePolyline);
             this.routePolyline = null;
         }
+        
+        // Clear real route lines
+        this.routeLines.forEach(line => this.map.removeLayer(line));
+        this.routeLines = [];
+        
+        // Clear routing cache
+        this.routingCache.clear();
 
         this.updatePointsList();
         document.getElementById('routeInfo').style.display = 'none';
@@ -515,27 +524,53 @@ class DeliveryOptimizer {
     }
 
     // Graph-based Route Optimization using Nearest Neighbor Algorithm
-    optimizeRoute() {
+    async optimizeRoute() {
         if (this.points.length < 2) {
             alert('You need at least 2 points to optimize the route.');
             return;
         }
 
-        // Build distance matrix (complete graph)
-        const distanceMatrix = this.buildDistanceMatrix();
+        // Show loading indicator
+        const optimizeBtn = document.getElementById('optimizeBtn');
+        const originalText = optimizeBtn.textContent;
+        optimizeBtn.textContent = '⏳ Calculating...';
+        optimizeBtn.disabled = true;
 
-        // Apply Nearest Neighbor Algorithm (greedy approach for TSP)
-        const route = this.nearestNeighborTSP(distanceMatrix);
+        try {
+            // Build distance matrix (complete graph)
+            const distanceMatrix = await this.buildDistanceMatrix();
 
-        this.optimizedRoute = route;
-        this.displayRoute(route);
-        this.displayRouteInfo(route, distanceMatrix);
+            // Apply Nearest Neighbor Algorithm (greedy approach for TSP)
+            const route = this.nearestNeighborTSP(distanceMatrix);
+
+            this.optimizedRoute = route;
+            await this.displayRoute(route);
+            this.displayRouteInfo(route, distanceMatrix);
+        } catch (error) {
+            console.error('Error optimizing route:', error);
+            alert('Error calculating optimal route. Please try again.');
+        } finally {
+            optimizeBtn.textContent = originalText;
+            optimizeBtn.disabled = false;
+        }
     }
 
-    buildDistanceMatrix() {
+    async buildDistanceMatrix() {
         const n = this.points.length;
         const matrix = Array(n).fill(null).map(() => Array(n).fill(0));
 
+        // Try to use OSRM for real street distances
+        try {
+            const realMatrix = await this.buildRealDistanceMatrix();
+            if (realMatrix) {
+                console.log('Using real street distances from OSRM');
+                return realMatrix;
+            }
+        } catch (error) {
+            console.warn('OSRM not available, falling back to Haversine distance:', error.message);
+        }
+
+        // Fallback to Haversine distance
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < n; j++) {
                 if (i !== j) {
@@ -546,6 +581,38 @@ class DeliveryOptimizer {
                 }
             }
         }
+
+        return matrix;
+    }
+
+    async buildRealDistanceMatrix() {
+        const n = this.points.length;
+        
+        // Build coordinates string for OSRM table API
+        const coords = this.points.map(p => `${p.lng},${p.lat}`).join(';');
+        
+        // Use OSRM table service to get all pairwise distances
+        const url = `https://router.project-osrm.org/table/v1/driving/${coords}?annotations=distance`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            signal: AbortSignal.timeout(10000) // 10 second timeout
+        });
+
+        if (!response.ok) {
+            throw new Error(`OSRM API returned status ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.code !== 'Ok' || !data.distances) {
+            throw new Error('Invalid OSRM response');
+        }
+
+        // Convert meters to kilometers
+        const matrix = data.distances.map(row => 
+            row.map(dist => dist / 1000)
+        );
 
         return matrix;
     }
@@ -570,11 +637,33 @@ class DeliveryOptimizer {
 
     nearestNeighborTSP(distanceMatrix) {
         const n = distanceMatrix.length;
+        
+        // Try starting from each point and keep the best route
+        let bestRoute = null;
+        let bestDistance = Infinity;
+
+        for (let startPoint = 0; startPoint < n; startPoint++) {
+            const route = this.nearestNeighborFromStart(distanceMatrix, startPoint);
+            const distance = this.calculateRouteDistance(route, distanceMatrix);
+            
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestRoute = route;
+            }
+        }
+
+        // Apply 2-opt optimization to improve the route
+        const optimizedRoute = this.twoOptOptimization(bestRoute, distanceMatrix);
+        
+        return optimizedRoute;
+    }
+
+    nearestNeighborFromStart(distanceMatrix, startPoint) {
+        const n = distanceMatrix.length;
         const visited = Array(n).fill(false);
         const route = [];
         
-        // Start from the first point (index 0)
-        let current = 0;
+        let current = startPoint;
         visited[current] = true;
         route.push(current);
 
@@ -601,13 +690,106 @@ class DeliveryOptimizer {
         return route;
     }
 
-    displayRoute(route) {
-        // Remove previous route if exists
+    calculateRouteDistance(route, distanceMatrix) {
+        let totalDistance = 0;
+        for (let i = 0; i < route.length - 1; i++) {
+            totalDistance += distanceMatrix[route[i]][route[i + 1]];
+        }
+        return totalDistance;
+    }
+
+    twoOptOptimization(route, distanceMatrix) {
+        const n = route.length;
+        let improved = true;
+        let optimizedRoute = [...route];
+        
+        // Keep trying to improve until no more improvements are found
+        while (improved) {
+            improved = false;
+            
+            // Try all possible edge swaps
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = i + 2; j < n; j++) {
+                    // Calculate current distance
+                    const currentDist = 
+                        distanceMatrix[optimizedRoute[i]][optimizedRoute[i + 1]] +
+                        (j < n - 1 ? distanceMatrix[optimizedRoute[j]][optimizedRoute[j + 1]] : 0);
+                    
+                    // Calculate distance after swap
+                    const newDist = 
+                        distanceMatrix[optimizedRoute[i]][optimizedRoute[j]] +
+                        (j < n - 1 ? distanceMatrix[optimizedRoute[i + 1]][optimizedRoute[j + 1]] : 0);
+                    
+                    // If swap improves the route, apply it
+                    if (newDist < currentDist) {
+                        // Reverse the segment between i+1 and j
+                        const newRoute = [
+                            ...optimizedRoute.slice(0, i + 1),
+                            ...optimizedRoute.slice(i + 1, j + 1).reverse(),
+                            ...optimizedRoute.slice(j + 1)
+                        ];
+                        optimizedRoute = newRoute;
+                        improved = true;
+                    }
+                }
+            }
+        }
+        
+        return optimizedRoute;
+    }
+
+    async displayRoute(route) {
+        // Remove previous route lines if exist
         if (this.routePolyline) {
             this.map.removeLayer(this.routePolyline);
         }
+        this.routeLines.forEach(line => this.map.removeLayer(line));
+        this.routeLines = [];
 
-        // Create route line
+        // Try to draw real street routes
+        try {
+            await this.drawRealRoute(route);
+        } catch (error) {
+            console.warn('Failed to draw real routes, falling back to straight lines:', error.message);
+            // Fallback to straight line route
+            this.drawStraightRoute(route);
+        }
+
+        // Update markers to show route order
+        this.updateMarkersWithRoute(route);
+    }
+
+    async drawRealRoute(route) {
+        // Draw route segments between consecutive points
+        for (let i = 0; i < route.length - 1; i++) {
+            const from = this.points[route[i]];
+            const to = this.points[route[i + 1]];
+            
+            const routeGeometry = await this.getOSRMRoute(from, to);
+            
+            if (routeGeometry) {
+                const polyline = L.polyline(routeGeometry, {
+                    color: '#48bb78',
+                    weight: 4,
+                    opacity: 0.8,
+                    smoothFactor: 1
+                }).addTo(this.map);
+                
+                this.routeLines.push(polyline);
+            } else {
+                // Fallback to straight line for this segment
+                const line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], {
+                    color: '#48bb78',
+                    weight: 4,
+                    opacity: 0.6,
+                    dashArray: '10, 10'
+                }).addTo(this.map);
+                this.routeLines.push(line);
+            }
+        }
+    }
+
+    drawStraightRoute(route) {
         const routeCoords = route.map(i => [this.points[i].lat, this.points[i].lng]);
         
         this.routePolyline = L.polyline(routeCoords, {
@@ -619,9 +801,44 @@ class DeliveryOptimizer {
 
         // Add arrows to show direction
         this.addRouteArrows(routeCoords);
+    }
 
-        // Update markers to show route order
-        this.updateMarkersWithRoute(route);
+    async getOSRMRoute(from, to) {
+        // Check cache first
+        const cacheKey = `${from.lat},${from.lng}-${to.lat},${to.lng}`;
+        if (this.routingCache.has(cacheKey)) {
+            return this.routingCache.get(cacheKey);
+        }
+
+        try {
+            const url = `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                signal: AbortSignal.timeout(5000)
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const data = await response.json();
+            
+            if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+                return null;
+            }
+
+            // Convert GeoJSON coordinates [lng, lat] to Leaflet format [lat, lng]
+            const geometry = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            
+            // Cache the result
+            this.routingCache.set(cacheKey, geometry);
+            
+            return geometry;
+        } catch (error) {
+            console.warn(`OSRM route request failed: ${error.message}`);
+            return null;
+        }
     }
 
     addRouteArrows(coords) {
