@@ -16,11 +16,14 @@
 2. Press "Add Point" after each one
 3. Click "Optimize Route"
 4. Observe the calculated route and distances
+5. Check browser console (F12) to see optimization details
 
 ### Expected Result:
+- **Route following real streets** (not straight lines)
 - Optimal route with approximately 15-20 km total
 - 7 stops numbered in efficient order
-- Directional arrows showing the path
+- Routes drawn along actual roads
+- Console shows: "Best initial route" vs "Optimized route" distances
 
 ### Alternative: Using Address Search
 You can also search by landmark names:

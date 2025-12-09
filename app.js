@@ -652,8 +652,14 @@ class DeliveryOptimizer {
             }
         }
 
+        console.log(`Best initial route distance: ${bestDistance.toFixed(2)} km`);
+
         // Apply 2-opt optimization to improve the route
         const optimizedRoute = this.twoOptOptimization(bestRoute, distanceMatrix);
+        const optimizedDistance = this.calculateRouteDistance(optimizedRoute, distanceMatrix);
+        
+        const improvement = ((bestDistance - optimizedDistance) / bestDistance * 100).toFixed(1);
+        console.log(`Optimized route distance: ${optimizedDistance.toFixed(2)} km (${improvement}% improvement)`);
         
         return optimizedRoute;
     }
@@ -936,7 +942,12 @@ class DeliveryOptimizer {
             `;
         });
 
-        html += `<div class="total-distance">Total Distance: ${totalDistance.toFixed(2)} km</div>`;
+        html += `
+            <div class="total-distance">Total Distance: ${totalDistance.toFixed(2)} km</div>
+            <div style="font-size: 12px; color: #718096; margin-top: 8px; text-align: center;">
+                ✓ Route optimized using Nearest Neighbor + 2-opt algorithm
+            </div>
+        `;
         
         routeDetails.innerHTML = html;
         routeInfo.style.display = 'block';

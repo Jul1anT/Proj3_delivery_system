@@ -46,15 +46,34 @@ The system models the route problem as a complete weighted graph:
 - **Edges**: Connections between points with distance as weight
 - **Objective**: Find the shortest path that visits all nodes
 
-### Nearest Neighbor Algorithm
-Greedy heuristic with O(n²) complexity that:
-1. Starts at an arbitrary point
-2. Selects the nearest unvisited point
-3. Repeats until all points are visited
-4. Provides approximate solutions in real-time
+### Advanced Route Optimization
+Multi-stage optimization algorithm combining:
 
-### Haversine Formula
-Calculates real distances considering Earth's curvature:
+**1. Multi-start Nearest Neighbor**
+- Tests all possible starting points
+- Selects the best initial route
+- O(n³) complexity for better results
+
+**2. 2-opt Local Search**
+- Improves route by swapping edges
+- Eliminates crossing paths
+- Iterates until no improvements found
+
+**3. Real Street Routing**
+- Uses OSRM (Open Source Routing Machine) for real road distances
+- Fallback to Haversine formula if offline
+- Considers actual drivable routes
+
+### Distance Calculation
+Two methods for calculating distances:
+
+**OSRM API (Primary):**
+- Real street network distances
+- Considers one-way streets and road connectivity
+- Used when internet connection available
+
+**Haversine Formula (Fallback):**
+Calculates great-circle distances considering Earth's curvature:
 ```
 a = sin²(Δφ/2) + cos(φ₁) × cos(φ₂) × sin²(Δλ/2)
 c = 2 × atan2(√a, √(1-a))
